@@ -75,3 +75,22 @@ FROM Runners ru
 LEFT JOIN Race_Results rr ON ru.runner_id = rr.runner_id
 GROUP BY ru.runner_id, ru.first_name, ru.last_name
 ORDER BY total_prize_money DESC;
+
+Select * 
+from Runners
+Where first_name LIKE 'Av%';
+
+SELECT first_name, last_name, COUNT(*)
+FROM runners
+WHERE first_name LIKE '%rt';
+GROUP BY first_name, last_name;
+
+SELECT first_name, last_name, COUNT(*)
+FROM Runners
+WHERE first_name IN ('Noah', 'Albert', 'Sophia')
+GROUP BY first_name, last_name;
+
+-- Show each runner name only once
+SELECT DISTINCT first_name, last_name
+FROM Runners
+ORDER BY last_name, first_name;

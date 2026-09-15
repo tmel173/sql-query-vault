@@ -112,3 +112,176 @@ JOIN Races r ON rr.race_id = r.race_id
 JOIN Runners ru ON rr.runner_id = ru.runner_id
 WHERE rr.position = 1
 ORDER BY r.race_date;
+ 
+ create table test (col int);
+
+
+ Select * 
+ from Runners 
+ Where runner_id > 2 
+    And gender = 'F';
+
+    Seleect * 
+from Runners
+Where runner_id > 2 
+    OR gender = 'F';
+
+ SELECT race_name
+    , location
+    , prize_money
+FROM Races
+Where surface_type = 'Trail'
+    AND prize_money > 100000
+ORDER BY prize_money DESC;
+
+SELECT race_id,
+       runner_id,
+         finish_time
+FROM
+    Race_Results
+WHERE finish_time < '00:20:00'
+ORDER BY finish_time ASC;
+
+SELECT first_name,
+        last_name,
+        CASE WHEN TO_NUMBER(TO_CHAR(CURRENT_DATE, 'YYYY'), '9999') - TO_NUMBER(TO_CHAR(birth_date, 'YYYY'), '9999') <= 25 THEN '25 OR UNDER 25'
+             WHEN TO_NUMBER(TO_CHAR(CURRENT_DATE, 'YYYY'), '9999') - TO_NUMBER(TO_CHAR(birth_date, 'YYYY'), '9999') BETWEEN 26 AND 30 THEN 'BETWEEN 26 AND 30'
+             ELSE 'ABOVE 30' END AS age_group
+FROM Runners;
+
+SELECT runner_id,
+       UPPER(SUBSTRING(TRIM(last_name), 1, 1)) || LOWER(SUBSTRING(TRIM(last_name), 2, 
+       LENGTH(TRIM(last_name)) - 1)) || ', ' || LOWER(TRIM(first_name)) AS formatted_name,  
+       FROM Runners;
+
+SELECT
+runner_id,
+UPPER(SUBSTRING(TRIM(last_name), 1, 1)) || LOWER(SUBSTRING(TRIM(last_name), 2,
+LENGTH(TRIM(last_name)) - 1)) || ', ' || LOWER(TRIM(first_nme)) AS formatted_name
+FROM Runners;
+
+
+
+SELECT runner_id,
+UPPER(SUBSTRING(TRIM(last_name), 1, 1)) || LOWER(SUBSTRING(TRIM(last_name), 2,LENGTH(TRIM(last_name)) - 1)) || ', ' ||  LOWER(TRIM(first_name)) AS formatted_name  
+FROM Runners;
+
+SELECT
+runner_id,
+UPPER(SUBSTRING(TRIM(last_name), 1, 1)) || LOWER(SUBSTRING(TRIM(last_name), 2,
+LENGTH(TRIM(last_name)) - 1)) || ', ' ||  LOWER(TRIM(first_name)) AS formatted_name
+FROM Runners;
+
+SELECT
+r.runner_id,
+r.first_name,
+r.last_name
+FROM runners r
+LEFT JOIN race_results rr
+ON r.runner_id = rr.runner_id
+WHERE rr.position not IN (1, 2)
+ORDER BY r.last_name, r.first_name;
+
+SELECT
+r.runner_id,
+r.first_name,
+r.last_name
+FROM runners r
+LEFT JOIN race_results rr
+ON r.runner_id = rr.runner_id
+FROM runners r;
+
+--Prize money greater than 50000
+
+SELECT
+r.first_name,
+r.last_name,
+rr.prize_money
+FROM runners r
+JOIN runners rr
+ON r.runner_id = rr.runner_id
+    WHERE rr.prize_money >  50000;
+
+-- Trail races with prize money greater than 50000
+
+SELECT DISTINCT r.first_name, r.last_name, rce.race_name, rce.prize_money
+FROM runners r
+JOIN race_results rr ON r.runner_id = rr.runner_id
+JOIN races rce ON rr.race_id = rce.race_id
+WHERE rce.surface_type = 'Trail'
+AND rce.prize_money > 50000;
+
+-- Races with more than 2 participants
+SELECT r.race_name , COUNT(rr.runner_id) AS total_runners
+FROM races r
+JOIN race_results rr ON r.race_id = rr.race_id
+GROUP BY r.race_name;
+
+-- Average finish time for each race 
+SELECT r.race_name, AVG(rr.finish_time) AS avg_finish_time
+FROM races r
+JOIN race_results rr ON r.race_id = rr.race_id
+GROUP BY r.race_name
+ORDER BY avg_finish_time ASC;
+
+-- Runners with the most podium finishes (positions 1, 2, 3)
+SELECT r.race_name, COUNT(rr.runner_id) AS participant_count
+FROM races r
+JOIN race_results rr ON r.race_id = rr.race_id
+GROUP BY r.race_name HAVING COUNT(rr.runner_id) > 2;
+
+SELECT ru.first_name, ru.last_name, min(rr.finish_time) AS best_finish_time
+FROM race_results rr JOIN runners ru ON rr.runner_id = ru.runner_id
+GROUP BY ru.first_name, ru.last_name;
+
+SELECT r.first_name , r.last_name , COUNT(rr.race_id) AS first_position_count
+FROM runners r
+JOIN race_results rr ON r.runner_id = rr.runner_id
+WHERE rr.position = 1
+GROUP BY r.first_name, r.last_name;
+
+SELECT r.race_name, MIN(rr.finish_time) AS fastest_finish_time
+FROM races r JOIN race_results rr ON r.race_id = rr.race_id
+GROUP BY r.race_name;
+
+SELECT r.runner_id,
+       r.first_name,
+       r.last_namem,
+       r.coach,
+       c.first_name as coach_first_name,
+       c.last_name as coach_last_name
+FROM runners r
+LEFT JOIN runners c 
+ON r.coach = c.runner_id
+ORDER BY r.runner_id;
+
+
+select runner_id, sum(prize_money)
+from races R , race_results RR
+where R.race_id = RR.race_id
+  and RR.position = 1
+group by runner_id
+order by 2 desc;
+
+WITH Runnerprizes AS (
+    select runner_id, sum(prize_money) total_prize
+    from races R , race_results RR
+    where r.race_id = RR.race_id
+      and RR.position = 1
+      group by runner_id
+)
+select runner_id, 
+From Runnerprizes
+order by total_prize desc
+limit 1;
+
+WITH Runnerprizes AS (
+    select runner_id, sum(prize_money) total_prize
+    from races R , race_results RR
+    where r.race_id = RR.race_id
+      and RR.position = 1
+      group by runner_id
+)
+update runners set first_name = 'Champion' 
+where runner_id in (select runner_id from Runnerprizes where total_prize in (select max(total_prize) from Runnerprizes));
+
